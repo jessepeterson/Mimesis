@@ -15,6 +15,57 @@ class
 MimeEntityBody
 {
 	/**
+	 * @var BodyContent
+	 */
+	var $_bodyContent;
+
+	/**
+	 * When parsing use this factory to create body content for specialized
+	 * locations of body content data (such as mid-file for a single MIME
+	 * message for example).
+	 *
+	 * @access private
+	 * @var object
+	 */
+	var $_bodyContentFactory;
+
+	/**
+	 * @param object $factory
+	 */
+	function
+	setParseBodyContentFactory (&$factory)
+	{
+		$this->_bodyContentFactory =& $factory;
+	}
+
+	/**
+	 * @return object
+	 */
+	function
+	&getParseBodyContentFactory ()
+	{
+		return $this->_bodyContentFactory;
+	}
+
+	/**
+	 * @return BodyContent
+	 */
+	function
+	&getBodyContent ()
+	{
+		return $this->_bodyContent;
+	}
+
+	/**
+	 * @param BodyContent $bodyContent Body content object.
+	 */
+	function
+	setBodyContent (&$bodyContent)
+	{
+		$this->_bodyContent =& $bodyContent;
+	}
+
+	/**
 	 * @param MimeEntity $entity
 	 * @return MimeEntityBody
 	 */
@@ -46,6 +97,46 @@ MimeEntityBody
 	function
 	_parseBodyLineFromRef (&$line, $pos)
 	{
+		$content = $this->getBodyContent ();
+		if (! is_object ($content))
+		{
+			$bodyContentFactory = $this->getParseBodyContentFactory ();
+
+			if (is_object ($bodyContentFactory))
+			{
+				$this->setBodyContent (
+					$bodyContent =& $bodyContentFactory->factory ());
+
+				$bodyContent->_parseBodyLineFromRef ($line, $pos);
+			}
+			/*
+			else
+				var_dump ('MimeEntityBody::_parseBodyLineFromRef - no body content exists and no body content factory object exists');
+			 */
+
+			/*
+			XXX can throw away if not needed..
+
+			$this->setBodyContent ($this->get
+			$this->setBodyContent ($content =& new PartialFileBodyContent);
+			$content->_position = $pos;
+			 */
+		}		 	
+		else
+		{
+			$content->_parseBodyLineFromRef ($line, $pos);
+		}
+	}
+
+	/**
+	 */
+	function
+	_parseDone ()
+	{
+		$content =& $this->getBodyContent ();
+
+		//if (is_object ($content))
+			// $content->_parseDone ();
 	}
 }
 
@@ -80,6 +171,15 @@ MimeEntityBody
 	 * @var MimeEntity
 	 */
 	var $_curCompositeEntity;
+
+	function
+	_parseDone ()
+	{
+		// last 'entity' in our composite body is to be ignored according to
+		// RFCs 2045,2046
+		unset (
+			$this->_compositeEntities[count ($this->_compositeEntities) - 1]);
+	}
 
 	/**
 	 * Set MIME composite (multipart) boundary string.
@@ -137,8 +237,14 @@ MimeEntityBody
 		{
 			// boundary line found
 
+			if (is_object ($this->_curCompositeEntity))
+				$this->_curCompositeEntity->_parseDone ();
+
 			unset ($this->_curCompositeEntity);
 			$this->_curCompositeEntity =& new MimeEntity;
+
+			$this->_curCompositeEntity->setParseBodyContentFactory (
+				$this->getParseBodyContentFactory ());
 
 			$this->addCompositeEntity ($this->_curCompositeEntity);
 		}
@@ -149,6 +255,15 @@ MimeEntityBody
 			if (is_object ($this->_curCompositeEntity))
 				$this->_curCompositeEntity->_parseRawLineFromRef ($line, $pos);
 		}
+	}
+
+	/**
+	 * @return array Reference to array of sub-entities.
+	 */
+	function
+	&getEntities ()
+	{
+		return $this->_compositeEntities;
 	}
 }
 
@@ -166,6 +281,13 @@ MimeEntityBody
 	 */
 	var $_entity;
 
+	/**
+	 * kludgy hack!
+	 *
+	 * @access private
+	 */
+	var $_haveAssignedContentFactory;
+
 	function
 	MimeEntityEntityBody ()
 	{
@@ -180,7 +302,135 @@ MimeEntityBody
 	function
 	_parseBodyLineFromRef (&$line, $pos)
 	{
+		if (empty ($this->_haveAssignedContentFactory))
+		{
+			$this->_entity->setParseBodyContentFactory (
+				$this->getParseBodyContentFactory ());
+
+			$this->_haveAssignedContentFactory = true;
+		}
+
 		$this->_entity->_parseRawLineFromRef ($line, $pos);
+	}
+
+	/**
+	 * @return MimeEntity
+	 */
+	function
+	&getEntity ()
+	{
+		return $this->_entity;
+	}
+
+	function
+	_parseDone ()
+	{
+		$this->_entity->_parseDone ();
+	}
+}
+
+/**
+ * @package MIMESIS_BODY
+ */
+class
+BodyContent
+{
+}
+
+/**
+ * @package MIMESIS_BODY
+ */
+class
+PartialFileBodyContent
+extends
+BodyContent
+{
+	/**
+	 * @access private
+	 */
+	var $_fileName = null;
+
+	/**
+	 * @access private
+	 */
+	var $_position = -1;
+
+	/**
+	 * @access private
+	 */
+	var $_length;
+
+	/**
+	 * @param string $fileName
+	 */
+	function
+	setFileName ($fileName)
+	{
+		$this->_fileName = $fileName;
+	}
+
+	/**
+	 * @return string
+	 */
+	function
+	getFileName ()
+	{
+		return $this->_fileName;
+	}
+
+	/**
+	 * @param string $line
+	 * @param integer $pos
+	 */
+	function
+	_parseBodyLineFromRef (&$line, $pos)
+	{
+		if ($this->_position == -1)
+			$this->_position = $pos;
+
+		$this->_length += strlen ($line) + 1;
+	}
+}
+
+/**
+ * @package MIMESIS_BODY
+ */
+class
+SingleFileBodyContentFactory
+{
+	/**
+	 * @access private
+	 */
+	var $_fileName = null;
+
+	/**
+	 * @return BodyContent
+	 */
+	function
+	&factory ()
+	{
+		$bodyContent =& new PartialFileBodyContent;
+		$bodyContent->setFileName ($this->getFileName ());
+
+		return $bodyContent;
+	}
+
+	/**
+	 * @param string $fileName
+	 */
+	function
+	setFileName ($fileName)
+	{
+		$this->_fileName = $fileName;
+	}
+
+	/**
+	 * @return string
+	 */
+	function
+	getFileName ()
+	{
+		return $this->_fileName;
 	}
 }
 

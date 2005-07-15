@@ -160,7 +160,7 @@ StructuredMimeHeaderField
 		$this->_type = $tokens[0]['string'];
 		$this->_subtype = $tokens[2]['string'];
 
-		for ($i = 4; $i < count ($tokens); $i += 3)
+		for ($i = 4; $i < count ($tokens); $i += 4)
 		{
 			$this->_parameters[strtolower ($tokens[$i]['string'])] =
 				$tokens[$i + 2]['string'];

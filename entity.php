@@ -63,6 +63,34 @@ MimeEntity
 	var $_currentHeaderField;
 
 	/**
+	 * When parsing use this factory to create body content for specialized
+	 * locations of body content data (such as mid-file for a single MIME
+	 * message for example).
+	 *
+	 * @access private
+	 * @var object
+	 */
+	var $_bodyContentFactory;
+
+	/**
+	 * @param object $factory
+	 */
+	function
+	setParseBodyContentFactory (&$factory)
+	{
+		$this->_bodyContentFactory =& $factory;
+	}
+
+	/**
+	 * @return object
+	 */
+	function
+	&getParseBodyContentFactory ()
+	{
+		return $this->_bodyContentFactory;
+	}
+
+	/**
 	 * @return MimeEntityBody
 	 */
 	function
@@ -140,16 +168,27 @@ MimeEntity
 				substr ($chunk, $last_lf_pos, strlen ($chunk));
 		}
 
+
+		$this->_rawChunkPosition += strlen ($chunk);
+	}
+
+	/**
+	 * XXX: what if our body doesn't exist?
+	 */
+	function
+	_parseDone ()
+	{
 		// TODO: parse any left-over text if our "EOF" has been reached: need
 		//       to detemine how to signal our "EOF"
-		/*
 		$this->_parseRawLine (
 			$this->_rawChunkLeftOver,
 			$this->_rawChunkPosition - strlen ($this->_rawChunkLeftOver));
 		$this->_rawChunkLeftOver = null;
-		 */
 
-		$this->_rawChunkPosition += strlen ($chunk);
+		$body =& $this->getBody ();
+
+		if (is_object ($body))
+			$body->_parseDone ();
 	}
 
 	/**
@@ -175,7 +214,8 @@ MimeEntity
 	{
 		if ($this->_eoh)
 		{
-			// end of header/start of body reached
+			// end of header/start of body reached, now parsing body
+			// XXX: really ought to be $this->getBody (), speed considerations?
 			if (is_object ($this->_body))
 				$this->_body->_parseBodyLineFromRef ($line, $pos);
 		}
@@ -213,7 +253,22 @@ MimeEntity
 			}
 
 			// create our body object
-			$this->_body =& MimeEntityBody::entityFactory ($this);
+			$this->setBody (MimeEntityBody::entityFactory ($this));
+
+			$body =& $this->getBody ();
+
+			$body->setParseBodyContentFactory (
+				$this->getParseBodyContentFactory ());
+
+			/*
+			var_dump (
+				'MimeEntity::_parseHeaderLine - creating body object(' .
+					get_class ($body) . ')',
+				$this->getParseBodyContentFactory (),
+				$body->getParseBodyContentFactory (),
+				'MimeEntity::_parseHeaderLine - done.'
+				);
+			*/
 
 			$this->_eoh = true;
 		}
@@ -257,8 +312,8 @@ MimeEntity
 	}
 
 	/**
-	 * Get header field by field name.  Assumes there is only one header field
-	 * with a single name.  Matches field names case-insensitively.
+	 * Gets first (or only) header field by field name.  Matches field names
+	 * case-insensitively.
 	 *
 	 * @param string $name Header field name.
 	 * @return MimeHeaderField Header field with matching name.
