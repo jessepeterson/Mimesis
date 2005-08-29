@@ -1,0 +1,48 @@
+taken from example message givin in section 5.1 of RFC 2046
+---
+
+new entity
+  new header
+    new 'From' header field
+	  addr-spec = 'nsb@bellcore.com'
+	  display-name = 'Nathaniel Borenstein'
+    new 'To' header field
+	  addr-spec = 'ned@innosoft.com'
+	  display-name = 'Ned Freed'
+	new 'Date' header field
+	  date = 'Sun, Mar 1993 23:56:48 -0800 (PST)'
+	new 'Subject' header field
+	  subj = 'Sample Message'
+	new 'MIME-Version' header field
+	  ver = 1.0
+	new 'Content-type' header field
+	  type = multipart
+	  subtype = mixed
+	  param (boundary) = "simple boundary"
+  new body
+    new preamble
+	  new preamble line = 'This is the preamble...'
+	  new preamble line = 'is a handy place for...'
+	  new preamble line = 'explanatory note to ...'
+	  new preamble line = ''
+	new boundary marker
+	  new entity
+	    new header
+		new body
+		  new body line = 'This is ...'
+		  new body line = 'It does ...'
+	new boundary marker
+	  new entity
+	    new header
+		  new 'Content-type' header field
+		    type = text
+			subtype = plain
+			param (charset) = 'us-ascii'
+        new body
+		  new body line = 'This is ...'
+		  new body line = 'It DOES ...'
+		  new body line = ''
+    boundary end marker
+	new eipologue
+	  new epilogue line = ''
+	  new epilogue line = 'This is ...'

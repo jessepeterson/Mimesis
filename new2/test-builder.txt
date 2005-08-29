@@ -1,0 +1,8 @@
+From: test@example.com
+To: jesse@mactechs.com,
+	joe@bob.com
+Subject: test
+Content-Type: text/plain
+Message-Id: <someid@someorg.net>
+
+Message!
