@@ -1,6 +1,6 @@
 <?php
 
-require_once ('822tok.php');
+require_once ('parsetok.php');
 
 class
 MimeHeaderField
