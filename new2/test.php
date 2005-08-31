@@ -6,13 +6,17 @@ require_once ('mimeentitybuilderlinebuilder.inc.php');
 require_once ('mimemessagefileparser.inc.php');
 
 if (empty ($argv[1]))
-	$f = 'mime-test.eml';
+	$file = 'mime-test.eml';
 else
-	$f = $argv[1];
+	$file = $argv[1];
 
-print ('parsing file "' . $f . "\" ...");
+print ('parsing file "' . $file . "\" ...");
 
-$parser = new MimeEntityFileParser (new MimeEntityBuilderLineBuilder (new MimeEntityBuilder), $f);
+$parser =
+	new MimeEntityFileParser (
+		new MimeEntityBuilderLineBuilder (
+			new MimeEntityBuilder
+			), $file);
 
 $parser->parse ();
 
