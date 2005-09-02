@@ -7,16 +7,18 @@ require_once ('mimemessagefileparser.inc.php');
 
 if (empty ($argv[1]))
 	$file = 'mime-test.eml';
+elseif ('-' == $argv[1])
+	$file = 'php://stdin';
 else
 	$file = $argv[1];
 
 print ('parsing file "' . $file . "\" ...");
 
 $parser =
-	new MimeEntityFileParser (
-		new MimeEntityBuilderLineBuilder (
-			new MimeEntityBuilder
-			), $file);
+	new MimeFileLineParser (
+		new MimeEntityBuilderLineBuilder (new MimeEntityBuilder),
+		$file
+		);
 
 $parser->parse ();
 

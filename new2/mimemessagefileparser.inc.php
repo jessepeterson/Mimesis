@@ -6,26 +6,56 @@
  */
 
 /**
+ * File parser for internet messages.  Basically reads lines from a
+ * file and passes lines to a LineBuilder.
+ *
+ * Only "special" handling this FileLineParser has is that internet
+ * messages are restricted to 998-byte long lines (1000 minus CRLF
+ * pair).
+ *
+ * @package MIMESIS_BUILD
  */
 class
-MimeEntityFileParser
+MimeFileLineParser
 {
+	/** @access private */
 	var $_builder;
+
+	/** @access private */
 	var $_fileName;
 
+	/**
+	 * @param LineBuilder
+	 * @param string File name to parse
+	 */
 	function
-	__construct (&$builder, $fileName = null)
+	MimeFileLineParser (&$builder, $fileName = null)
 	{
 		$this->_builder =& $builder;
 		$this->setFileName ($fileName);
 	}
 
+	/**
+	 * Set file name of file to open and parsef or liens.
+	 *
+	 * @param string
+	 */
 	function
 	setFileName ($fileName)
 	{
 		$this->_fileName = $fileName;
 	}
 
+	/**
+	 * Parse lines of file and pass to our LineBuilder.
+	 *
+	 * Please be aware of the limitations that the PHP built-in
+	 * function fgets() has.  It is passed an argument of 1025
+	 * (the default for a previous version of PHP that also
+	 * happens to be a good number for internet message line
+	 * lengths).  If your files are larger than this number you
+	 * will probably get unexpected results.
+	 */
 	function
 	parse ()
 	{
@@ -48,8 +78,13 @@ MimeEntityFileParser
 		}
 	}
 
+	/**
+	 * Return our completed and built MimeEntity object!
+	 *
+	 * @return MimeEntity
+	 */
 	function
-	getMimeEntity ()
+	&getMimeEntity ()
 	{
 		return $this->_builder->getBuiltObject ();
 	}

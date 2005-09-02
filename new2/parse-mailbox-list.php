@@ -37,23 +37,26 @@ function parse_mailbox ($mbox_toks)
 	if (TOKEN_SPECIAL == $mbox_toks[count ($mbox_toks) - 1]['type'] and
 	    '>'           == $mbox_toks[count ($mbox_toks) - 1]['string'])
 	{
-		var_dump ('display-name');
-
 		foreach ($mbox_toks as $tok)
 		{
 			if (TOKEN_SPECIAL == $tok['type'] and
 				'<'           == $tok['string'])
 			{
+				$reached_addr_spec = true;
 			}
 			elseif (TOKEN_SPECIAL == $tok['type'] and
-				    '<'           == $tok['string'])
+				    '>'           == $tok['string'])
 			{
+				print ('-> "' . trim ($display_name) . '" ' . $addr_spec . "\n");
+				return;
 			}
 			elseif ($reached_addr_spec)
 			{
+				$addr_spec .= $tok['string'];
 			}
 			else
 			{
+				$display_name .= $tok['string'] . ' ';
 			}
 		}
 	}
@@ -64,7 +67,8 @@ function parse_mailbox ($mbox_toks)
 			$addr_spec .= $tok['string'];
 		}
 
-		var_dump ($addr_spec);
+		print ('-> ' . $addr_spec . "\n");
+		return;
 	}
 }
 

@@ -1,8 +1,6 @@
 <?php
 
 /**
- * MIME entity line builder.
- *
  * @copyright Copyright (C) 2005 Jesse Peterson.  All rights reserved.
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
@@ -11,28 +9,65 @@ require_once ('linebuilder.interface.php');
 require_once ('fields.ifaces.php');
 
 /**
+ * MIME entity line builder.
+ *
+ * @package MIMESIS_BUILD
  */
 class
 MimeEntityBuilderLineBuilder
 implements
 LineBuilder
 {
+	/** @access private */
 	var $_builder;
-	var $_nextLineSrcPos;
 
+	/**
+	 * Current processing position within entity stack
+	 *
+	 * @access private
+	 */
 	var $_curEnt = 0;
+
+	/**
+	 * Total count of entities processed.
+	 *
+	 * @access private
+	 */
 	var $_entityCt = 0;
 
 	/**
-	 * 0 = entity #
-	 * 1 = 'eoh'
-	 * 2 = 'boundary'
-	 * 3 = 'message'
-	 * 4 = found boundaries
+	 * Stack of MIME entities being processed.
+	 *
+	 * Heirarchially constructs MIME message from lines and this array
+	 * keeps track of our current possition in the heirarchy and other
+	 * information about this MimeEntity.
+	 *
+	 * Indice = description
+	 *
+	 * [0]	entity number (for Builder's reference)
+	 * [1]	end of header
+	 * [2]	boundary text, if multipart
+	 * [3]	boolean, true if this is a message MIME-type
+	 * [4]	current count of found boundaries
+	 *
+	 * @access private
 	 */
 	var $_entityStack = array ();
 
+	/**
+	 * Currently processing/parsing header field body.  Gets
+	 * incrementally appended to to support folding and unfolding
+	 * (RFC 2822 section 3.2.3).
+	 *
+	 * @access private
+	 */
 	var $_headerFieldBody = null;
+
+	/** 
+	 * Currently processing header field name.
+	 *
+	 * @access private
+	 */
 	var $_headerFieldName = null;
 
 	function
