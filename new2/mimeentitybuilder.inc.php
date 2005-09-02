@@ -1,12 +1,15 @@
 <?php
 
 /**
- * MIME entity builder.
- *
  * @copyright Copyright (C) 2005 Jesse Peterson.  All rights reserved.
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
 
+/**
+ * MIME entity builder.
+ *
+ * @package MIMESIS_BUILD
+ */
 class
 MimeEntityBuilder
 {
@@ -39,8 +42,6 @@ MimeEntityBuilder
 	{
 		$this->_assureIdExists ($entityId);
 		$this->_entities[$entityId]->addHeaderField ($headerField);
-
-		// print ('hHF (' . $entityId . ")\n");
 	}
 
 	function
