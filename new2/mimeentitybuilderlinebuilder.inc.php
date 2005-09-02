@@ -9,14 +9,17 @@ require_once ('linebuilder.interface.php');
 require_once ('fields.ifaces.php');
 
 /**
- * MIME entity line builder.
+ * Line-builder API drivin MIME entity builder.
+ *
+ * Constructs MIME entities using a MimeEntityBuilder by handling
+ * requests as a LineBuilder.
+ *
+ * Implements a LineBuilder-compatible interface.
  *
  * @package MIMESIS_BUILD
  */
 class
 MimeEntityBuilderLineBuilder
-implements
-LineBuilder
 {
 	/** @access private */
 	var $_builder;
@@ -70,13 +73,16 @@ LineBuilder
 	 */
 	var $_headerFieldName = null;
 
+	/**
+	 * @param MimeEntityBuilder
+	 */
 	function
-	__construct (&$builder)
+	MimeEntityBuilderLineBuilder (&$builder)
 	{
 		$this->_builder =& $builder;
 
-		// create entity 'marker'
-		$this->_entityStack[] = array (
+		// create root entity/entity 'marker'
+		$this->_entityStack[$this->_curEnt] = array (
 			0 => $this->_entityCt,
 			1 => false,
 			2 => null,
@@ -86,47 +92,48 @@ LineBuilder
 	}
 
 	/**
-	 * @param string Line data.
-	 * @param integer Byte position.
-	 * @implements LineBuilder::handleLine
+	 * Handle a MIME message line.
+	 *
+	 * Implements LineBuilder::handleLine interface method.
+	 *
+	 * @param string Line data
+	 * @param integer Byte position
 	 */
-	public function
+	function
 	handleLine ($line, $pos = null)
 	{
 		if ($this->_entityStack[$this->_curEnt][1])
 		{
-			// entity body line
+			// entity body line (end-of-header has been reached)
 
 			// all boundary lines start with '-', test for it
 			if ('-' == $line{0})
 			{
 				// loop through our entity stack to find boundaries
-				for ($ek = $this->_curEnt; $ek >= 0; $ek--)
+				for ($i = $this->_curEnt; $i >= 0; $i--)
 				{
-					$boundary =& $this->_entityStack[$ek][2];
-
-					if ($boundary)
+					if ($boundary =& $this->_entityStack[$i][2])
 					{
-						// test for a boundary line
+						// test for boundary line
 						if (0 === strpos ($line, '--' . $boundary))
 						{
-							$found_boundary = true;
+							// found boundary
 
 							/* loop through our entity stack and remove
 							   items which have been processed already */
-							for ($j = $this->_curEnt; $j > $ek; $j--)
+							for ($j = $this->_curEnt; $j > $i; $j--)
 							{
 								array_pop ($this->_entityStack);
 								$this->_curEnt--;
 							}
 
-							// test for non-end-boundary (aka, entity following)
+							// test for non-end-of-boundary (aka, entity following)
 							if ('--' != substr ($line, strlen ($boundary) + 2, 2))
 							{
-								// increment our found boundaries for $ek entity
-								$this->_entityStack[$ek][4]++;
+								// increment our found boundaries for $i entity
+								$this->_entityStack[$i][4]++;
 
-								// create entity 'marker'
+								// create new entity/entity 'marker'
 								$this->_entityStack[++$this->_curEnt] = array (
 									0 => ++$this->_entityCt,
 									1 => false,
@@ -137,18 +144,20 @@ LineBuilder
 
 								// add new entity to our parent entity
 								$this->_builder->addComponent (
-									$this->_entityStack[$ek][0],
+									$this->_entityStack[$i][0],
 									$this->_entityCt
 									);
 							}
 							
-							// break;
+							/* if we've found a boundary nothing
+							 * else can happen with the line */
 							return;
 						}
 					}
 				}
 			}
 
+			// standard line - pass to builder for handline body text
 			$this->_builder->handleBodyLineByRef (
 				$this->_entityStack[$this->_curEnt][0],
 				$line,
@@ -158,17 +167,18 @@ LineBuilder
 		}
 		elseif (empty ($line))
 		{
-			// first blank line (end of header/start of body)
+			// first blank line (end of header/start of body) has been found
 
 			// mark this entity has having gotten past its header
 			$this->_entityStack[$this->_curEnt][1] = true;
+
 			// commit any previous header field we've been unfolding
 			$this->_parseHeaderField ();
 
-			// body is marked as being another message (content type of 'message')
+			// test if body is marked as being another message (content type of 'message')
 			if ($this->_entityStack[$this->_curEnt][3])
 			{
-				// create entity 'marker'
+				// create new entity/entity 'marker'
 				$this->_entityStack[++$this->_curEnt] = array (
 					0 => ++$this->_entityCt,
 					1 => false,
@@ -193,34 +203,27 @@ LineBuilder
 				// "folded" header line
 
 				// add ourself to the unfolded line already existing
-				$this->_appendHeaderFieldLine ($line);
+				$this->_headerFieldBody .= $line;
 			}
 			elseif (preg_match ('/^([\x21-\x39\x3b-\x7e]*)\x3a(.*)$/',
 			                    $line,
 			                    $header_field))
 			{
-				// (possibly start of) header field line
+				/* header field line - could possibly only be start of due to
+				 * folding and unfolding */
 
 				// commit any previous header field we've been unfolding
 				$this->_parseHeaderField ();
+
 				// make this line the current header field
-				$this->_setHeaderField ($header_field[1], $header_field[2]);
+				$this->_headerFieldName = $header_field[1];
+				$this->_headerFieldBody = $header_field[2];
 			}
+			/* else {} - we're currently not handling non-header field lines in
+			 * the header such as mbox-format message separators ("From ..."
+			 * lines) */
 		}
 
-	}
-
-	function
-	_setHeaderField ($name, $body)
-	{
-		$this->_headerFieldName = $name;
-		$this->_headerFieldBody = $body;
-	}
-
-	function
-	_appendHeaderFieldLine ($line)
-	{
-		$this->_headerFieldBody .= $line;
 	}
 
 	/**
@@ -267,10 +270,13 @@ LineBuilder
 
 
 	/**
-	 * @return MimeEntityBuilder
-	 * @implements LineBuilder::getBuiltObject
+	 * Return our built MimeEntity object!
+	 *
+	 * Implements LineBuilder::getBuiltObject interface method.
+	 *
+	 * @return MimeEntity
 	 */
-	public function
+	function
 	&getBuiltObject ()
 	{
 		return $this->_builder->getBuiltObject ();
