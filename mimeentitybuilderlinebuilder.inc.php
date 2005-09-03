@@ -9,7 +9,7 @@ require_once ('linebuilder.interface.php');
 require_once ('fields.ifaces.php');
 
 /**
- * Line-builder API drivin MIME entity builder.
+ * Line-builder API driven MIME entity builder.
  *
  * Constructs MIME entities using a MimeEntityBuilder by handling
  * requests as a LineBuilder.
@@ -228,6 +228,8 @@ MimeEntityBuilderLineBuilder
 
 	/**
 	 * XXX: refactor me!
+	 *
+	 * @access private
 	 */
 	function
 	_parseHeaderField ()

@@ -13,6 +13,10 @@
 class
 MimeEntityBuilder
 {
+	/**
+	 * @var array
+	 * @access private
+	 */
 	var $_entities = array ();
 
 	function
@@ -21,6 +25,10 @@ MimeEntityBuilder
 		$this->_entities[0] =& new MimeEntity;
 	}
 
+	/**
+	 * @param integer
+	 * @param integer
+	 */
 	function
 	addComponent ($entityId, $componentEntityId)
 	{
@@ -32,11 +40,21 @@ MimeEntityBuilder
 			);
 	}
 
+	/**
+	 * @todo Not implemented yet!
+	 * @param integer
+	 * @param string
+	 * @param integer
+	 */
 	function
 	handleBodyLineByRef ($entityId, &$line, $pos = null)
 	{
 	}
 
+	/**
+	 * @param integer
+	 * @param MimeHeaderField
+	 */
 	function
 	handleHeaderField ($entityId, &$headerField)
 	{
@@ -44,12 +62,19 @@ MimeEntityBuilder
 		$this->_entities[$entityId]->addHeaderField ($headerField);
 	}
 
+	/**
+	 * @return MimeEntity
+	 */
 	function
 	&getBuiltObject ()
 	{
 		return $this->_entities[0];
 	}
 
+	/**
+	 * @param integer
+	 * @access private
+	 */
 	function
 	_assureIdExists ($id)
 	{

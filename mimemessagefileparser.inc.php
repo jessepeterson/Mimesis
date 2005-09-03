@@ -11,7 +11,7 @@
  *
  * Only "special" handling this FileLineParser has is that internet
  * messages are restricted to 998-byte long lines (1000 minus CRLF
- * pair).
+ * pair) as specified by RFCs 822/2822.
  *
  * @package MIMESIS_BUILD
  */
@@ -25,7 +25,7 @@ MimeFileLineParser
 	var $_fileName;
 
 	/**
-	 * @param LineBuilder
+	 * @param LineBuilder Builder object
 	 * @param string File name to parse
 	 */
 	function
@@ -36,7 +36,7 @@ MimeFileLineParser
 	}
 
 	/**
-	 * Set file name of file to open and parsef or liens.
+	 * Set filename to open and parse for lines.
 	 *
 	 * @param string
 	 */
@@ -53,8 +53,8 @@ MimeFileLineParser
 	 * function fgets() has.  It is passed an argument of 1025
 	 * (the default for a previous version of PHP that also
 	 * happens to be a good number for internet message line
-	 * lengths).  If your files are larger than this number you
-	 * will probably get unexpected results.
+	 * lengths).  If your file has lines that are larger than
+	 * this you will probably get unexpected results.
 	 */
 	function
 	parse ()
