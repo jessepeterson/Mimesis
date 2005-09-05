@@ -13,15 +13,21 @@
  * messages are restricted to 998-byte long lines (1000 minus CRLF
  * pair) as specified by RFCs 822/2822.
  *
- * @package MIMESIS_BUILD
+ * @package MIMESIS_PARSE
  */
 class
 MimeFileLineParser
 {
-	/** @access private */
+	/**
+	 * @var MimeEntityBuilderLineBuilder
+	 * @access private
+	 */
 	var $_builder;
 
-	/** @access private */
+	/**
+	 * @var string
+	 * @access private
+	 */
 	var $_fileName;
 
 	/**

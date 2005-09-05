@@ -21,12 +21,16 @@ require_once ('fields.ifaces.php');
 class
 MimeEntityBuilderLineBuilder
 {
-	/** @access private */
+	/**
+	 * @var MimeEntityBuilder
+	 * @access private
+	 */
 	var $_builder;
 
 	/**
 	 * Current processing position within entity stack
 	 *
+	 * @var integer
 	 * @access private
 	 */
 	var $_curEnt = 0;
@@ -34,6 +38,7 @@ MimeEntityBuilderLineBuilder
 	/**
 	 * Total count of entities processed.
 	 *
+	 * @var integer
 	 * @access private
 	 */
 	var $_entityCt = 0;
@@ -53,6 +58,7 @@ MimeEntityBuilderLineBuilder
 	 * [3]	boolean, true if this is a message MIME-type
 	 * [4]	current count of found boundaries
 	 *
+	 * @var array
 	 * @access private
 	 */
 	var $_entityStack = array ();
@@ -62,6 +68,7 @@ MimeEntityBuilderLineBuilder
 	 * incrementally appended to to support folding and unfolding
 	 * (RFC 2822 section 3.2.3).
 	 *
+	 * @var string
 	 * @access private
 	 */
 	var $_headerFieldBody = null;
@@ -69,6 +76,7 @@ MimeEntityBuilderLineBuilder
 	/** 
 	 * Currently processing header field name.
 	 *
+	 * @var string
 	 * @access private
 	 */
 	var $_headerFieldName = null;
