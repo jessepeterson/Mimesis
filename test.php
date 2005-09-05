@@ -1,9 +1,7 @@
 <?php
 
-require_once ('mimeentity.inc.php');
-require_once ('mimeentitybuilder.inc.php');
-require_once ('mimeentitybuilderlinebuilder.inc.php');
-require_once ('mimemessagefileparser.inc.php');
+require_once ('parse.inc.php');
+require_once ('build.inc.php');
 
 if (empty ($argv[1]))
 	$file = 'mime-test.eml';

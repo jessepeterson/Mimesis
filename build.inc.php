@@ -5,7 +5,7 @@
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
 
-require_once ('linebuilder.interface.php');
+require_once ('mimeentity.inc.php');
 require_once ('fields.ifaces.php');
 
 /**
