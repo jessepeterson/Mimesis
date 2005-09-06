@@ -13,7 +13,10 @@
  * messages are restricted to 998-byte long lines (1000 minus CRLF
  * pair) as specified by RFCs 822/2822.
  *
+ * Generally used with a MimeEntityBuilderLineBuilder.
+ *
  * @package MIMESIS_PARSE
+ * @see MimeEntityBuilderLineBuilder
  */
 class
 MimeFileLineParser

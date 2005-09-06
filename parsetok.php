@@ -3,11 +3,11 @@
 /**
  * Parse RFC 822 and RFC 2045 structed header field tokens.
  *
- * @package MIMESIS_TOK
  * @copyright Copyright (C) 2005 Jesse Peterson.  All rights reserved.
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
 
+/** */
 define ('TOKEN_COMMENT', 1);
 define ('TOKEN_QUOTED_STRING', 2);
 define ('TOKEN_DOMAIN_LITERAL', 4);
@@ -51,12 +51,13 @@ filter822tokens ($tokens, $types)
  * section 3.1.4 lexical symbols and types sequence.  These include special
  * chars, quoted-strings, domain-literals, comments, and "atoms."
  *
- * Note: Has no knowledge of folding and unfolding.  Assumes any unfolding
- *       has already been done or doesn't exist.
- * Note: Specials are taken from argument.  If not specified, use RFC 822.
- * Note: "linear-white-space" tokenization may not be to spec (CRLF?).
- * Note: Implemented as char-at-a-time parsing.  For PHP this may be
- *       glacially slow!
+ * - Note: Has no knowledge of folding and unfolding.  Assumes any
+ *         unfolding has already been done or doesn't exist.
+ * - Note: Specials are taken from argument.  If not specified, use RFC
+ *         822.
+ * - Note: "linear-white-space" tokenization may not be to spec (CRLF?).
+ * - Note: Implemented as char-at-a-time parsing.  For PHP this may be
+ *         glacially slow!
  *
  * @package MIMESIS_TOK
  * @param string $body Refernce to structured header field body.

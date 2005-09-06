@@ -10,25 +10,23 @@ elseif ('-' == $argv[1])
 else
 	$file = $argv[1];
 
-print ('parsing file "' . $file . "\" ...");
-
 $parser =
 	new MimeFileLineParser (
 		new MimeEntityBuilderLineBuilder (new MimeEntityBuilder),
 		$file
 		);
 
+print ('parsing file "' . $file . "\" ...");
+
 $parser->parse ();
 
 print (" done.\n\n");
 
-$a = $parser->getMimeEntity ();
+test_entity_structure_display (
+	$parser->getMimeEntity ()
+	);
 
-// var_dump ($a->getHeaderFieldByName ('content-type'));
-recursent ($a);
-
-
-function recursent (&$ent)
+function test_entity_structure_display (&$ent)
 {
 	global $t;
 	$t++;
@@ -40,11 +38,9 @@ function recursent (&$ent)
 
 	foreach (array_keys ($ent->_components) as $ek)
 	{
-		recursent ($ent->_components[$ek]);
+		test_entity_structure_display ($ent->_components[$ek]);
 		$t--;
 	}
 }
-
-// var_dump ($parser->getMimeEntity ());
 
 ?>

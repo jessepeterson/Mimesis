@@ -5,7 +5,9 @@
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
 
+/** @see MimeEntity */
 require_once ('mimeentity.inc.php');
+/** @see MimeHeaderField */
 require_once ('fields.ifaces.php');
 
 /**
@@ -52,11 +54,11 @@ MimeEntityBuilderLineBuilder
 	 *
 	 * Indice = description
 	 *
-	 * [0]	entity number (for Builder's reference)
-	 * [1]	end of header
-	 * [2]	boundary text, if multipart
-	 * [3]	boolean, true if this is a message MIME-type
-	 * [4]	current count of found boundaries
+	 * - [0]	entity number (for Builder's reference)
+	 * - [1]	end of header
+	 * - [2]	boundary text, if multipart
+	 * - [3]	boolean, true if this is a message MIME-type
+	 * - [4]	current count of found boundaries
 	 *
 	 * @var array
 	 * @access private
@@ -105,7 +107,7 @@ MimeEntityBuilderLineBuilder
 	 * Implements LineBuilder::handleLine interface method.
 	 *
 	 * @param string Line data
-	 * @param integer Byte position
+	 * @param integer Byte position of line in source.
 	 */
 	function
 	handleLine ($line, $pos = null)
@@ -388,7 +390,6 @@ MimeEntityBuilder
 	/**
 	 * Return our built MimeEntity object!
 	 *
-	 * @see MimeEntity
 	 * @return MimeEntity
 	 */
 	function
