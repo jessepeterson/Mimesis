@@ -2,6 +2,8 @@
 
 require_once ('parse.inc.php');
 require_once ('build.inc.php');
+require_once ('fields.ifaces.php');
+require_once ('body.inc.php');
 
 if (empty ($argv[1]))
 	$file = 'mime-test.eml';
@@ -12,7 +14,8 @@ else
 
 $parser =
 	new MimeFileLineParser (
-		new MimeEntityBuilderLineBuilder (new MimeEntityBuilder),
+		new MimeEntityBuilderLineBuilder (new MemoryMimeEntityBuilder),
+//		new MimeEntityBuilderLineBuilder (new MimeEntityBuilder),
 		$file
 		);
 
@@ -35,6 +38,10 @@ function test_entity_structure_display (&$ent)
 	$hdr =& $ent->getHeaderFieldByName ('content-type');
 
 	print ('| ' . $hdr->_type . '/' . $hdr->_subtype . "\n");
+
+	if (strtolower ($hdr->_type) == 'text' or
+	    $hdr->_type == '')
+		var_dump ($ent->body->getBody ());
 
 	foreach (array_keys ($ent->_components) as $ek)
 	{

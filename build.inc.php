@@ -7,8 +7,6 @@
 
 /** @see MimeEntity */
 require_once ('mimeentity.inc.php');
-/** @see MimeHeaderField */
-require_once ('fields.ifaces.php');
 
 /**
  * Line-builder API driven MIME entity builder.
@@ -350,7 +348,8 @@ MimeEntityBuilder
 	}
 
 	/**
-	 * @todo Not implemented yet!
+	 * Null-action body line handler.
+	 *
 	 * @param integer Entity ID
 	 * @param string Line of body text
 	 * @param integer Optional byte position from source
@@ -361,8 +360,10 @@ MimeEntityBuilder
 	}
 
 	/**
-	 * @todo Not implemented yet!
-	 * @param integer Entity ID
+	 * Null-action body line handler.
+	 *
+	 * @see handleBodyLineByRef
+	 * @param integer
 	 * @param string
 	 * @param integer
 	 */
@@ -410,6 +411,55 @@ MimeEntityBuilder
 	{
 		if (! is_object ($this->_entities[$id]))
 			$this->_entities[$id] =& new MimeEntity;
+	}
+}
+
+/**
+ * Build MIME messages and contain in memory including bodies.
+ *
+ * Care needs to be taken with large messages as large string handling
+ * functions (including concatenation) and memory utilization by PHP
+ * are of concern.
+ *
+ * @package MIMESIS_BUILD
+ */
+class
+MemoryMimeEntityBuilder
+extends
+MimeEntityBuilder
+{
+	/**
+	 * In-memeory body line handler.
+	 *
+	 * @param integer Entity ID
+	 * @param string Line of body text
+	 * @param integer Optional byte position from source
+	 */
+	function
+	handleBodyLineByRef ($entityId, &$line, $pos = null)
+	{
+		$this->_assureIdExists ($entityId);
+
+		$entity =& $this->_entities[$entityId];
+
+		if (! is_object ($entity->body))
+			$entity->body =& new MemoryMimeBody;
+
+		$entity->body->handleRawLineByRef ($line, $pos);
+	}
+
+	/**
+	 * In-memeory body line handler.
+	 *
+	 * @see handleBodyLineByRef
+	 * @param integer
+	 * @param string
+	 * @param integer
+	 */
+	function
+	handleBodyLine ($entityId, $line, $pos = null)
+	{
+		$this->_handleBodyLineByRef ($entityId, $line, $pos);
 	}
 }
 
