@@ -33,15 +33,24 @@ function test_entity_structure_display (&$ent)
 {
 	global $t;
 	$t++;
-	print (str_repeat ('-+', $t));
+	// print (str_repeat ('-+', $t) . '| ');
+	print (str_repeat ('|', $t));
 
 	$hdr =& $ent->getHeaderFieldByName ('content-type');
 
-	print ('| ' . $hdr->_type . '/' . $hdr->_subtype . "\n");
+	if (! is_object ($hdr))
+	{
+		print ('(no Content-type) ');
+	}
 
+	print ($hdr->_type . '/' . $hdr->_subtype);
+	print ("\n");
+
+	/*
 	if (strtolower ($hdr->_type) == 'text' or
 	    $hdr->_type == '')
 		var_dump ($ent->body->getBody ());
+	*/
 
 	foreach (array_keys ($ent->_components) as $ek)
 	{

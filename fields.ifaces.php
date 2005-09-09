@@ -63,6 +63,18 @@ MimeHeaderField
 		{
 		case 'content-type':
 			return new ContentTypeHeaderField;
+		/*
+		case 'to':
+			return new AddressListHeaderField;
+		case 'cc':
+			return new AddressListHeaderField;
+		case 'bcc':
+			return new AddressListHeaderField;
+		case 'from':
+			return new AddressListHeaderField;
+		case 'reply-to':
+			return new AddressListHeaderField;
+		*/
 		default:
 			return new UnstructuredMimeHeaderField;
 		}
@@ -146,16 +158,46 @@ MimeHeaderField
 	/** @access private */
 	var $_params;
 
+	/**
+	 * @param string MIME type
+	 */
 	function
 	setType ($type)
 	{
 		$this->_type = $type;
 	}
 	
+	/**
+	 * @param string MIME sub-type
+	 */
 	function
 	setSubType ($type)
 	{
 		$this->_subtype = $type;
+	}
+
+	/**
+	 * @return string MIME type
+	 */
+	function
+	getType ()
+	{
+		if (! empty ($this->_type))
+			return $this->_type;
+		else
+			return 'text';
+	}
+
+	/**
+	 * @return string MIME sub-type
+	 */
+	function
+	getSubType ()
+	{
+		if (! empty ($this->_type))
+			return $this->_subtype;
+		else
+			return 'plain';
 	}
 
 	/**
@@ -212,6 +254,65 @@ MimeHeaderField
 	{
 		if ('message' == strtolower ($this->_type))
 			return true;
+	}
+}
+
+/**
+ * Header fields supporting the "address-list", "mailbox-list" (and other
+ * related ABNF rules).
+ *
+ * Examples include the To, Cc, and Bcc header fields.
+ *
+ * @package MIMESIS_HEADER
+ */
+class
+AddressMailboxListHeaderField
+extends
+MimeHeaderField
+{
+	/**
+	 * See overridden method.
+	 *
+	 * @param string
+	 */
+	function
+	parseBody ($body)
+	{
+		// parse body into (2)822 tokens removing white-space and comments
+		$toks = filter822tokens (
+			tokenize822 ($body),
+			TOKEN_ALL ^ TOKEN_WHITE_SPACE ^ TOKEN_COMMENT
+			);
+
+		$addr_toks = array (array ());
+		$addr_toks_pos = 0;
+		foreach ($toks as $tok)
+		{
+			if (TOKEN_SPECIAL == $tok['type'] and
+			    ',' == $tok['string'])
+			{
+				$addr_toks[++$addr_toks_pos] = array ();
+			}
+			elseif (0 == $addr_toks_pos and
+			        TOKEN_SPECIAL == $tok['type'] and
+			        ':' == $tok['string'])
+			{
+				$group = true;
+				$addr_toks[++$addr_toks_pos] = array ();
+			}
+			elseif ($group and
+			        TOKEN_SPECIAL == $tok['type'] and
+					';' == $tok['string'])
+			{
+			}
+			else
+			{
+				$addr_toks[$addr_toks_pos][] = $tok;
+			}
+		}
+
+		// group?
+		print_r ($addr_toks);
 	}
 }
 
