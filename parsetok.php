@@ -3,6 +3,7 @@
 /**
  * Parse RFC 822 and RFC 2045 structed header field tokens.
  *
+ * @package MIMESIS_PARSE
  * @copyright Copyright (C) 2005 Jesse Peterson.  All rights reserved.
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
@@ -22,9 +23,6 @@ define ('TOKEN_ALL',
 	TOKEN_SPECIAL |
 	TOKEN_ATOM);
 
-/**
- * @package MIMESIS_TOK
- */
 function
 filter822tokens ($tokens, $types)
 {
@@ -59,7 +57,6 @@ filter822tokens ($tokens, $types)
  * - Note: Implemented as char-at-a-time parsing.  For PHP this may be
  *         glacially slow!
  *
- * @package MIMESIS_TOK
  * @param string $body Refernce to structured header field body.
  * @param array $specials Special chars.
  * @return array Tokens.
@@ -177,7 +174,6 @@ tokenize822 ($body, $specials = null)
 
 /**
  * @see tokenize822
- * @package MIMESIS_TOK
  */
 function
 tokenize2045 ($body)

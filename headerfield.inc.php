@@ -3,6 +3,10 @@
 require_once ('parsetok.php');
 
 /**
+ * Parent class for MIME header fields.
+ *
+ * Unlikley to be used directly, its descendents are probably of better use.
+ *
  * @package MIMESIS_HEADER
  */
 class
@@ -79,6 +83,9 @@ MimeHeaderField
 }
 
 /**
+ * MIME/RFC (2)822 header field that supports 'raw' unstructured header field
+ * bodies.
+ *
  * @package MIMESIS_HEADER
  */
 class
@@ -93,27 +100,6 @@ MimeHeaderField
 	var $_body;
 
 	/**
-	 * @var string
-	 * @access private
-	 */
-	var $_name = null;
-
-	/** @param string */
-	function
-	setName ($name)
-	{
-		$this->_name = $name;
-	}
-
-	/** @return string */
-	function
-	getName ()
-	{
-		if (! empty ($this->_name))
-			return $this->_name;
-	}
-
-	/**
 	 * Retrives the 'assembled' header field body as it might
 	 * appear in a raw RFC 822/2046 message.
 	 *
@@ -126,10 +112,9 @@ MimeHeaderField
 	}
 
 	/**
-	 * Parses header field body into component peices of
-	 * or arguments of header field.
+	 * See overridden method.
 	 *
-	 * @param string $body Header field body text
+	 * @param string
 	 */
 	function
 	parseBody ($body)
@@ -139,6 +124,11 @@ MimeHeaderField
 }
 
 /**
+ * MIME Content-type header field.
+ *
+ * Supports MIME parsing and dealing with MIME types and sub-types as well as
+ * parameters.
+ *
  * @package MIMESIS_HEADER
  */
 class
@@ -152,36 +142,46 @@ MimeHeaderField
 	 */
 	var $_name = 'Content-Type';
 
-	/** @access private */
+	/**
+	 * MIME Content-type Type.
+	 *
+	 * @var string
+	 * @access private
+	 */
 	var $_type;
 
-	/** @access private */
+	/**
+	 * MIME Content-type Sub-Type.
+	 *
+	 * @var string
+	 * @access private
+	 */
 	var $_subtype;
 
-	/** @access private */
+	/**
+	 * MIME Content-type parameters.
+	 *
+	 * @see setParam
+	 * @see getParam
+	 * @access private
+	 */
 	var $_params;
 
-	/**
-	 * @param string MIME type
-	 */
+	/** @param string MIME type */
 	function
 	setType ($type)
 	{
 		$this->_type = $type;
 	}
 	
-	/**
-	 * @param string MIME sub-type
-	 */
+	/** @param string MIME sub-type */
 	function
 	setSubType ($type)
 	{
 		$this->_subtype = $type;
 	}
 
-	/**
-	 * @return string MIME type
-	 */
+	/** @return string MIME type */
 	function
 	getType ()
 	{
@@ -204,7 +204,9 @@ MimeHeaderField
 	}
 
 	/**
-	 * XXX: retain case preservation!!!!!!!!!!!!
+	 * @todo Implement case preservation of parameter names.
+	 * @param string
+	 * @param string
 	 */
 	function
 	setParam ($name, $value)
@@ -212,6 +214,10 @@ MimeHeaderField
 		$this->_params[strtolower ($name)] = $value;
 	}
 
+	/**
+	 * @param string
+	 * @return string Parameter value
+	 */
 	function
 	getParam ($name)
 	{
@@ -226,7 +232,12 @@ MimeHeaderField
 		die ('StructuredMimeHeaderField::getBody method must be overridden');
 	}
 
-	/** @implements StructuredMimeHeaderField::parseBody */
+	/**
+	 * Parse type, sub-type, and parameters from Content-type body string.
+	 *
+	 * @implements StructuredMimeHeaderField::parseBody
+	 * @param string
+	 */
 	function
 	parseBody ($body)
 	{
@@ -238,6 +249,7 @@ MimeHeaderField
 		$this->setType ($tokens[0]['string']);
 		$this->setSubType ($tokens[2]['string']);
 
+		// parse parameters
 		for ($i = 4; $i < count ($tokens); $i += 4)
 		{
 			$this->setParam ($tokens[$i]['string'],
@@ -245,6 +257,14 @@ MimeHeaderField
 		}
 	}
 
+	/**
+	 * Returns true if this Content-type designates a Multi-part MIME message.
+	 *
+	 * Note that this doesn't consult and entities or bodies.  We're simply
+	 * reporting what this Content-type header field says.
+	 *
+	 * @return bool
+	 */
 	function
 	isMultipart ()
 	{
@@ -252,6 +272,15 @@ MimeHeaderField
 			return true;
 	}
 
+	/**
+	 * Returns true if this Content-type designates a message component
+	 * (AKA a Content-type of "message").
+	 *
+	 * Note that this doesn't consult and entities or bodies.  We're simply
+	 * reporting what this Content-type header field says.
+	 *
+	 * @return bool
+	 */
 	function
 	isMessage ()
 	{
@@ -275,6 +304,9 @@ extends
 MimeHeaderField
 {
 	/**
+	 * Array of Mailboxes.
+	 *
+	 * @see Mailbox
 	 * @var array
 	 * @access private
 	 */
