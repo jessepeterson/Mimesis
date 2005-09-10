@@ -2,7 +2,7 @@
 
 require_once ('parse.inc.php');
 require_once ('build.inc.php');
-require_once ('fields.ifaces.php');
+require_once ('headerfield.inc.php');
 require_once ('body.inc.php');
 
 if (empty ($argv[1]))
