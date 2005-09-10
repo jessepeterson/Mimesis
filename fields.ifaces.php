@@ -2,6 +2,9 @@
 
 require_once ('parsetok.php');
 
+/**
+ * @package MIMESIS_HEADER
+ */
 class
 MimeHeaderField
 {
@@ -63,24 +66,21 @@ MimeHeaderField
 		{
 		case 'content-type':
 			return new ContentTypeHeaderField;
-		/*
 		case 'to':
-			return new AddressListHeaderField;
 		case 'cc':
-			return new AddressListHeaderField;
 		case 'bcc':
-			return new AddressListHeaderField;
 		case 'from':
-			return new AddressListHeaderField;
 		case 'reply-to':
 			return new AddressListHeaderField;
-		*/
 		default:
 			return new UnstructuredMimeHeaderField;
 		}
 	}
 }
 
+/**
+ * @package MIMESIS_HEADER
+ */
 class
 UnstructuredMimeHeaderField
 extends
@@ -138,6 +138,9 @@ MimeHeaderField
 	}
 }
 
+/**
+ * @package MIMESIS_HEADER
+ */
 class
 ContentTypeHeaderField
 extends
@@ -259,17 +262,24 @@ MimeHeaderField
 
 /**
  * Header fields supporting the "address-list", "mailbox-list" (and other
- * related ABNF rules).
+ * sub/related ABNF rules).
  *
  * Examples include the To, Cc, and Bcc header fields.
  *
+ * @todo Address-list "group" support
  * @package MIMESIS_HEADER
  */
 class
-AddressMailboxListHeaderField
+AddressListHeaderField
 extends
 MimeHeaderField
 {
+	/**
+	 * @var array
+	 * @access private
+	 */
+	var $_mailboxes = array ();
+
 	/**
 	 * See overridden method.
 	 *
@@ -286,33 +296,82 @@ MimeHeaderField
 
 		$addr_toks = array (array ());
 		$addr_toks_pos = 0;
+		$mailbox_toks = array ();
+
 		foreach ($toks as $tok)
 		{
+			/**
 			if (TOKEN_SPECIAL == $tok['type'] and
-			    ',' == $tok['string'])
+			    ':' == $tok['string'])
 			{
-				$addr_toks[++$addr_toks_pos] = array ();
-			}
-			elseif (0 == $addr_toks_pos and
-			        TOKEN_SPECIAL == $tok['type'] and
-			        ':' == $tok['string'])
-			{
-				$group = true;
-				$addr_toks[++$addr_toks_pos] = array ();
 			}
 			elseif ($group and
 			        TOKEN_SPECIAL == $tok['type'] and
-					';' == $tok['string'])
+			        ';' == $tok['string'])
 			{
+			}
+			 */
+
+			if (TOKEN_SPECIAL == $tok['type'] and
+			    ',' == $tok['string'])
+			{
+				$this->_mailboxes[] =& $this->_parseMailboxToks ($mailbox_toks);
+				$mailbox_toks = array ();
 			}
 			else
 			{
-				$addr_toks[$addr_toks_pos][] = $tok;
+				$mailbox_toks[] = $tok;
 			}
 		}
 
-		// group?
-		print_r ($addr_toks);
+		if (count ($mailbox_toks))
+			$this->_mailboxes[] =& $this->_parseMailboxToks ($mailbox_toks);
+	}
+
+	/**
+	 * @param array
+	 * @return Mailbox
+	 * @access private
+	 */
+	function
+	&_parseMailboxToks (&$toks)
+	{
+		require_once ('mailbox.inc.php');
+
+		$mailbox =& new Mailbox;
+
+		foreach ($toks as $tok)
+		{
+			if (TOKEN_SPECIAL == $tok['type'] and
+			    '<' == $tok['string'])
+			{
+				$in_angle_br = true;
+
+				if (count ($cur_strings))
+				{
+					$mailbox->setDisplayName (implode (' ', $cur_strings));
+					$cur_strings = array ();
+				}
+			}
+			elseif (TOKEN_SPECIAL == $tok['type'] and
+			    '@' == $tok['string'])
+			{
+				$mailbox->setLocalPart (implode (null, $cur_strings));
+				$cur_strings = array ();
+			}
+			elseif (TOKEN_SPECIAL == $tok['type'] and
+			    '>' == $tok['string'])
+			{
+				break;
+			}
+			else
+			{
+				$cur_strings[] = $tok['string'];
+			}
+		}
+		$mailbox->setDomain (implode (null, $cur_strings));
+
+		return $mailbox;
 	}
 }
 

@@ -5,27 +5,41 @@
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
 
+/**
+ * @package MIMESIS_HEADER
+ */
 class
 Mailbox
 {
-	/** @access public */
-	var $addrspec;
-
 	/** @access private */
 	var $_displayName;
 
-	function
-	Mailbox ()
-	{
-		$this->addrspec =& new Addrsepc;
-	}
-}
-
-class
-Addrspec
-{
-	var $_domain;
+	/** @access private */
 	var $_localPart;
+
+	/** @access private */
+	var $_domain;
+
+	/** @param string */
+	function
+	setDisplayName ($name)
+	{
+		$this->_displayName = $name;
+	}
+
+	/** @param string */
+	function
+	setLocalPart ($localPart)
+	{
+		$this->_localPart = $localPart;
+	}
+
+	/** @param string */
+	function
+	setDomain ($domain)
+	{
+		$this->_domain = $domain;
+	}
 }
 
 ?>
