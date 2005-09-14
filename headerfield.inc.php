@@ -76,6 +76,8 @@ MimeHeaderField
 		case 'from':
 		case 'reply-to':
 			return new AddressListHeaderField;
+		case 'content-disposition':
+			return new ContentDispositionHeaderField;
 		default:
 			return new UnstructuredMimeHeaderField;
 		}
@@ -165,7 +167,7 @@ MimeHeaderField
 	 * @see getParam
 	 * @access private
 	 */
-	var $_params;
+	var $_params = array ();
 
 	/** @param string MIME type */
 	function
@@ -225,18 +227,20 @@ MimeHeaderField
 			return $this->_params[strtolower ($name)];
 	}
 
-	/** @implements StructuredMimeHeaderField::getBody */
+	/** @implements StructuredMimeHeaderField::getBody
+	* @todo quote/etc. escaping of params
+	*/
 	function
 	getBody ()
 	{
-		return (
-			' ' .
-			$this->getType () .
-			'/' .
-			$this->getSubType ()
-			);
+		$body = ' ' .  $this->getType () .  '/' .  $this->getSubType ();
 
-		//die ('StructuredMimeHeaderField::getBody method must be overridden');
+		foreach ($this->_params as $param => $value)
+		{
+			$body .= '; ' . $param . '="' . $value . '"';
+		}
+
+		return $body;
 	}
 
 	/**
@@ -418,6 +422,119 @@ MimeHeaderField
 		$mailbox->setDomain (implode (null, $cur_strings));
 
 		return $mailbox;
+	}
+}
+
+/**
+ * RFC 2183 Content-Disposition header field.
+ *
+ * @package MIMESIS_HEADER
+ */
+class
+ContentDispositionHeaderField
+extends
+MimeHeaderField
+{
+	/**
+	 * @var string
+	 * @access private
+	 */
+	var $_name = 'Content-Disposition';
+
+	/**
+	 * Disposition type.
+	 *
+	 * @var string
+	 * @access private
+	 */
+	var $_type;
+
+	/**
+	 * Disposition-type parameters.
+	 *
+	 * @see setParam
+	 * @see getParam
+	 * @access private
+	 */
+	var $_params = array ();
+
+	/** @param string MIME type */
+	function
+	setType ($type)
+	{
+		$this->_type = $type;
+	}
+	
+	/** @return string MIME type */
+	function
+	getType ()
+	{
+		if (! empty ($this->_type))
+			return $this->_type;
+		else
+			return 'text';
+	}
+
+	/**
+	 * @todo Implement case preservation of parameter names.
+	 * @param string
+	 * @param string
+	 */
+	function
+	setParam ($name, $value)
+	{
+		$this->_params[strtolower ($name)] = $value;
+	}
+
+	/**
+	 * @param string
+	 * @return string Parameter value
+	 */
+	function
+	getParam ($name)
+	{
+		if (isset ($this->_params[strtolower ($name)]))
+			return $this->_params[strtolower ($name)];
+	}
+
+	/** @implements StructuredMimeHeaderField::getBody
+	* @todo quote/etc. escaping of params
+	*/
+	function
+	getBody ()
+	{
+		$body = ' ' .  $this->getType ();
+
+		foreach ($this->_params as $param => $value)
+		{
+			$body .= '; ' . $param . '="' . $value . '"';
+		}
+
+		return $body;
+	}
+
+	/**
+	 * Parse type, sub-type, and parameters from Content-type body string.
+	 *
+	 * @implements StructuredMimeHeaderField::parseBody
+	 * @param string
+	 */
+	function
+	parseBody ($body)
+	{
+		$tokens = filter822tokens (
+			tokenize2045 ($body),
+			TOKEN_ALL ^ TOKEN_WHITE_SPACE ^ TOKEN_COMMENT
+			);
+
+		$this->setType ($tokens[0]['string']);
+
+		// parse parameters
+		for ($i = 2; $i < count ($tokens); $i += 4)
+		{
+			$this->setParam ($tokens[$i]['string'],
+			                 $tokens[$i + 2]['string']);
+		}
 	}
 }
 
