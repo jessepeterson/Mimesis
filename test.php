@@ -25,6 +25,18 @@ $parser->parse ();
 
 print (" done.\n\n");
 
+/*
+$rootEntity =& $parser->getMimeEntity ();
+
+$iter = $rootEntity->getComponentIterator ();
+
+for ($iter->rewind (); $iter->valid (); $iter->next ())
+{
+	$ent =& $iter->current ();
+	var_dump (get_class ($ent));
+}
+ */
+
 test_entity_structure_display (
 	$parser->getMimeEntity ()
 	);
@@ -33,6 +45,7 @@ function test_entity_structure_display (&$ent)
 {
 	global $t;
 	$t++;
+
 	// print (str_repeat ('-+', $t) . '| ');
 	print (str_repeat ('|', $t));
 
@@ -46,15 +59,12 @@ function test_entity_structure_display (&$ent)
 	print ($hdr->_type . '/' . $hdr->_subtype);
 	print ("\n");
 
-	/*
-	if (strtolower ($hdr->_type) == 'text' or
-	    $hdr->_type == '')
-		var_dump ($ent->body->getBody ());
-	*/
-
-	foreach (array_keys ($ent->_components) as $ek)
+	for ($i =& $ent->getComponentIterator ();
+	     $i->valid ();
+	     $i->next ()
+		 )
 	{
-		test_entity_structure_display ($ent->_components[$ek]);
+		test_entity_structure_display ($i->current ());
 		$t--;
 	}
 }

@@ -42,7 +42,7 @@ MimeHeaderField
 	function
 	getBody ()
 	{
-		die ('StructuredMimeHeaderField::getBody method must be overridden');
+		die ('MimeHeaderField::getBody method must be overridden');
 	}
 
 	/**
@@ -54,7 +54,7 @@ MimeHeaderField
 	function
 	parseBody ()
 	{
-		die ('StructuredMimeHeaderField::parseBody method must be overridden');
+		die ('MimeHeaderField::parseBody method must be overridden');
 	}
 
 	/**
@@ -229,7 +229,14 @@ MimeHeaderField
 	function
 	getBody ()
 	{
-		die ('StructuredMimeHeaderField::getBody method must be overridden');
+		return (
+			' ' .
+			$this->getType () .
+			'/' .
+			$this->getSubType ()
+			);
+
+		//die ('StructuredMimeHeaderField::getBody method must be overridden');
 	}
 
 	/**
@@ -311,6 +318,13 @@ MimeHeaderField
 	 * @access private
 	 */
 	var $_mailboxes = array ();
+
+	/**
+	 */
+	function
+	getBody ()
+	{
+	}
 
 	/**
 	 * See overridden method.

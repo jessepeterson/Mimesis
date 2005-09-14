@@ -5,6 +5,9 @@
  * @author Jesse Peterson <jpeterson275@comcast.net>
  */
 
+/** @see RefArrayIterator */
+require_once ('refarrayiterator.inc.php');
+
 /**
  * PHP OOP representation of an RFC 2045 and RFC 2046 MIME entity (RFC
  * 2045 section 2.4).
@@ -83,6 +86,46 @@ MimeEntity
 	addComponent (&$mimeEntity)
 	{
 		$this->_components[] =& $mimeEntity;
+	}
+
+	/**
+	 * Return true if we are a composite entity.
+	 *
+	 * @return boolean
+	 */
+	function
+	isComposite ()
+	{
+		if (count ($this->_components))
+			return true;
+	}
+
+	/**
+	 * Return iterator of component MIME entities.
+	 *
+	 * @return Iterator
+	 */
+	function
+	&getComponentIterator ()
+	{
+		$iterator =& new RefArrayIterator;
+		$iterator->setRefArray ($this->_components);
+
+		return $iterator;
+	}
+
+	/**
+	 * Return iterator of header field objects.
+	 *
+	 * @return Iterator
+	 */
+	function
+	&getHeaderFieldIterator ()
+	{
+		$iterator =& new RefArrayIterator;
+		$iterator->setRefArray ($this->_headerFields);
+
+		return $iterator;
 	}
 }
 
