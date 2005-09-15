@@ -1,9 +1,9 @@
 <?php
 
-require_once ('parse.inc.php');
-require_once ('build.inc.php');
-require_once ('headerfield.inc.php');
-require_once ('body.inc.php');
+require_once ('mimesis/parse.inc.php');
+require_once ('mimesis/build.inc.php');
+require_once ('mimesis/headerfield.inc.php');
+require_once ('mimesis/body.inc.php');
 
 if (empty ($argv[1]))
 	$file = 'mime-test.eml';

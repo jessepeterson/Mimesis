@@ -6,7 +6,7 @@
  */
 
 /** @see MimeEntity */
-require_once ('mimeentity.inc.php');
+require_once ('mimesis/mimeentity.inc.php');
 
 /**
  * Line-builder API driven MIME entity builder.

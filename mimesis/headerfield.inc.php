@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @copyright Copyright (C) 2005 Jesse Peterson.  All rights reserved.
+ * @author Jesse Peterson <jpeterson275@comcast.net>
+ */
+
+/** */
 require_once ('parsetok.php');
 
 /**
