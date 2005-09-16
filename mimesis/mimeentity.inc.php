@@ -127,6 +127,64 @@ MimeEntity
 
 		return $iterator;
 	}
+
+	/**
+	 * Helper/utility function: Return (possibly guessed) MIME
+	 * type of body.
+	 *
+	 * If no Content-type header exists and we're not a
+	 * composite we'll return 'text'.  If we're a composite
+	 * and no Content-type header exists we'll return 'multipart'.
+	 * If a Content-type header exists we'll simply use the values
+	 * from that.
+	 *
+	 * @return string
+	 */
+	function
+	getType ()
+	{
+		$contentTypeHdr =& $this->getHeaderFieldByName ('content-type');
+
+		if (is_object ($contentTypeHdr))
+		{
+			return $contentTypeHdr->getType ();
+		}
+		else
+		{
+			if ($this->isComposite ())
+				return 'multipart';
+			else
+				return 'text';
+		}
+	}
+
+	/**
+	 * Helper/utility function: Return (possibly guessed) MIME
+	 * sub-type of body.
+	 *
+	 * See getType() for notes on default values.
+	 *
+	 * @see getType
+	 * @return string
+	 */
+	function
+	getSubType ()
+	{
+		$contentTypeHdr =& $this->getHeaderFieldByName ('content-type');
+
+		if (is_object ($contentTypeHdr))
+		{
+			return $contentTypeHdr->getSubType ();
+		}
+		else
+		{
+			// if we're composite 'guess' multipart/mixed type
+			if ($this->isComposite ())
+				return 'mixed';
+			else
+				return 'plain';
+		}
+	}
 }
 
 ?>
