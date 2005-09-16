@@ -1,8 +1,8 @@
 <?php
 
 ini_set ('include_path', ini_get('include_path') . ':../');
-define ('SIMPLETEST_DIR', '/home/jpeterson/devel/resources/simpletest-1.0/simpletest/');
 
+define ('SIMPLETEST_DIR', 'simpletest/');
 require_once (SIMPLETEST_DIR . 'unit_tester.php');
 require_once (SIMPLETEST_DIR . 'reporter.php');
 

@@ -135,7 +135,7 @@ MimeEntity
 	 * If no Content-type header exists and we're not a
 	 * composite we'll return 'text'.  If we're a composite
 	 * and no Content-type header exists we'll return 'multipart'.
-	 * If a Content-type header exists we'll simply use the values
+	 * If a Content-type header exists we'll simply use the type
 	 * from that.
 	 *
 	 * @return string
@@ -162,7 +162,11 @@ MimeEntity
 	 * Helper/utility function: Return (possibly guessed) MIME
 	 * sub-type of body.
 	 *
-	 * See getType() for notes on default values.
+	 * If no Content-type header exists and we're not a
+	 * composite we'll return 'plain'.  If we're a composite
+	 * and no Content-type header exists we'll return 'mixed'.
+	 * If a Content-type header exists we'll simply use the
+	 * sub-type from that.
 	 *
 	 * @see getType
 	 * @return string

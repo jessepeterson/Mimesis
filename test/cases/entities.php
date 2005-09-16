@@ -1,6 +1,7 @@
 <?php
 
 require_once ('mimesis/mimeentity.inc.php');
+require_once ('mimesis/headerfield.inc.php');
 
 class
 CompositeEntityTestCase
@@ -63,6 +64,20 @@ UnitTestCase
 
 		$this->assertEqual (strtolower ($entity->getType ()), 'multipart');
 		$this->assertEqual (strtolower ($entity->getSubType ()), 'mixed');
+	}
+
+	function
+	TestContentType ()
+	{
+		$contentTypeHdr =& new ContentTypeHeaderField;
+		$contentTypeHdr->setType ('audio');
+		$contentTypeHdr->setSubType ('x-tooloud');
+
+		$entity =& new MimeEntity;
+		$entity->addHeaderField ($contentTypeHdr);
+
+		$this->assertEqual (strtolower ($entity->getType ()), 'audio');
+		$this->assertEqual (strtolower ($entity->getSubType ()), 'x-tooloud');
 	}
 }
 
