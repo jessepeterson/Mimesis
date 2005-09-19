@@ -1,8 +1,16 @@
 <?php
 
+/**
+ * @copyright Copyright (C) 2005 Jesse Peterson.  All rights reserved.
+ * @author Jesse Peterson <jpeterson275@comcast.net>
+ * @package MIMESIS_TEST
+ */
+
+/** */
 require_once ('mimesis/mimeentity.inc.php');
 require_once ('mimesis/headerfield.inc.php');
 
+/** @package MIMESIS_TEST */
 class
 CompositeEntityTestCase
 extends
@@ -42,6 +50,7 @@ UnitTestCase
 	}
 }
 
+/** @package MIMESIS_TEST */
 class
 EntityTypesTestCase
 extends
