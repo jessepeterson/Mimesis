@@ -73,6 +73,25 @@ MimeEntity
 	}
 
 	/**
+	 * Test for the existence of a header field specified by header
+	 * field name.
+	 *
+	 * @param string Header field name
+	 * @return boolean
+	 */
+	function
+	headerFieldExists ($name)
+	{
+		foreach (array_keys ($this->_headerFields) as $hdr_key)
+		{
+			if (strtolower ($this->_headerFields[$hdr_key]->getName ()) == strtolower ($name))
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Add child entity to this entity for support of composite
 	 * MIME entities such as multipart and message types.
 	 *

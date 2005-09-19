@@ -19,6 +19,17 @@ MimeEntityHtmlGenerator
 	 */
 	var $_entity;
 
+
+	/**
+	 * Header fields (by name) to attempt to display.
+	 *
+	 * @var array
+	 * @access private
+	 */
+	var $_headers = array (
+		'from', 'date', 'to', 'cc', 'bcc', 'subject'
+		);
+
 	/**
 	 * @param MimeEntity
 	 */
@@ -75,7 +86,9 @@ MimeEntityHtmlGenerator
 	function
 	generatingHeader ()
 	{
-		return true;
+		if ($this->_entity->headerFieldExists ('from') or
+		    $this->_entity->headerFieldExists ('subject'))
+			return true;
 	}
 
 	/**
@@ -88,11 +101,7 @@ MimeEntityHtmlGenerator
 	{
 		print ('<table class="header">' . "\n");
 
-		$headers = array (
-			'from', 'date', 'to', 'cc', 'bcc', 'subject', 'content-type'
-			);
-
-		foreach ($headers as $findHeader)
+		foreach ($this->_headers as $findHeader)
 		{
 			$header =& $this->_entity->getHeaderFieldByName ($findHeader);
 			if (is_object ($header))
@@ -162,6 +171,17 @@ UnknownEntityHtmlGenerator
 extends
 MimeEntityHtmlGenerator
 {
+	var $_headers = array (
+		'content-type', 'content-disposition'
+		);
+
+	function
+	generatingHeader ()
+	{
+		if ($this->_entity->isComposite ())
+			return true;
+	}
+
 	function
 	generateBody ()
 	{
@@ -171,26 +191,36 @@ MimeEntityHtmlGenerator
 			print ('<img src="doc.png"></img>');
 			print ('</td><td>');
 
-			$hdr =& $this->_entity->getHeaderFieldByName ('content-disposition');
-			if (is_object ($hdr))
+			$contentDisposHdr =&
+				$this->_entity->getHeaderFieldByName ('content-disposition');
+			$contentTypeHdr =&
+				$this->_entity->getHeaderFieldByName ('content-type');
+
+			if (is_object ($contentDisposHdr))
 			{
-				print ($hdr->getParam ('filename') . '<br>');
-			}
-			else
-			{
-				$hdr =& $this->_entity->getHeaderFieldByName ('content-disposition');
-				if (is_object ($hdr))
-				{
-					print ($hdr->getParam ('name') . '<br>');
-				}
-				else
-				{
-				print ('unknown<br>');
-				}
+				if ('attachment' == strtolower ($contentDisposHdr->getType ()))
+					$filename = $contentDisposHdr->getParam ('filename');
 			}
 
-			print ($this->_entity->getType () . "/" . $this->_entity->getSubType ());
+			if (empty ($filename))
+			{
+				if (is_object ($contentTypeHdr))
+					$filename = $contentTypeHdr->getParam ('name');
+			}
+
+			if (empty ($filename))
+				$filename = 'Message Attachment';
+
+			print ('<strong>' . $filename . '</strong><br>');
+
+			print (ucfirst (strtolower ($this->_entity->getType ())) . " (" . $this->_entity->getSubType () . ')');
 			print ('</td></tr></table>' . "\n");
+		}
+		else
+		{
+			print ('<p style="background-color:red;"><strong>*** UNKNOWN COMPOSITE ENTITY ***</strong><br>[' .
+				$this->_entity->getType () . '/' . $this->_entity->getSubType () .
+				']</p>' . "\n");
 		}
 	}
 }
