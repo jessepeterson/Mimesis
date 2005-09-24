@@ -48,11 +48,19 @@ MimeEntityHtmlGenerator
 		$type    = strtolower ($entity->getType ());
 		$subtype = strtolower ($entity->getSubType ());
 		
+		//if ('text' == $type and 'plain' == $subtype)
+		//	return new PlainTextHtmlGenerator ($entity);
 		if ('text' == $type and 'plain' == $subtype)
-			return new PlainTextHtmlGenerator ($entity);
+			return new IndentMarkingPlainTextHtmlGenerator ($entity);
 		elseif ('multipart' == $type and 'mixed' == $subtype)
 			return new CompositeEntityHtmlGenerator ($entity);
+		elseif ('multipart' == $type and 'signed' == $subtype)
+			return new CompositeEntityHtmlGenerator ($entity);
+		elseif ('multipart' == $type and 'alternative' == $subtype)
+			return new AlternativeMultipartHtmlGenerator ($entity);
 		elseif ('message' == $type and 'rfc822' == $subtype)
+			return new CompositeEntityHtmlGenerator ($entity);
+		elseif ('multipart' == $type)
 			return new CompositeEntityHtmlGenerator ($entity);
 		else
 			return new UnknownEntityHtmlGenerator ($entity);
@@ -130,6 +138,51 @@ MimeEntityHtmlGenerator
 	{
 		print ('<p class="body">' . "\n");
 		print (nl2br (htmlentities ($this->_entity->body->getBody ())));
+		print ('</p>' . "\n");
+	}
+}
+
+/**
+ * @package MIMESIS_HTMLGEN
+ */
+class
+IndentMarkingPlainTextHtmlGenerator
+extends
+MimeEntityHtmlGenerator
+{
+	function
+	generateBody ()
+	{
+		print ('<p class="body">' . "\n");
+
+		foreach (explode ("\n", $this->_entity->body->getBody ()) as $line)
+		{
+			if (substr ($line, 0, 3) == '>>>' or
+			    substr ($line, 0, 5) == '> > >')
+			{
+				print ('<span class="indentL2">');
+				print (htmlentities ($line));
+				print ("</span><br>\n");
+			}
+			elseif (substr ($line, 0, 2) == '>>' or
+			        substr ($line, 0, 3) == '> >')
+			{
+				print ('<span class="indentL2">');
+				print (htmlentities ($line));
+				print ("</span><br>\n");
+			}
+			elseif (substr ($line, 0, 1) == '>')
+			{
+				print ('<span class="indentL1">');
+				print (htmlentities ($line));
+				print ("</span><br>\n");
+			}
+			else
+			{
+				print (htmlentities ($line) . "<br>\n");
+			}
+		}
+
 		print ('</p>' . "\n");
 	}
 }
@@ -225,5 +278,48 @@ MimeEntityHtmlGenerator
 	}
 }
 
+/**
+ * @package MIMESIS_HTMLGEN
+ */
+class
+AlternativeMultipartHtmlGenerator
+extends
+MimeEntityHtmlGenerator
+{
+	function
+	generateBody ()
+	{
+		// loop through component entities to find a text/plain
+		for ($i =& $this->_entity->getComponentIterator ();
+		     $i->valid ();
+		     $i->next ()
+		     )
+		{
+			$entity =& $i->current ();
+
+			if ('text' == $entity->getType () and
+			    'plain' == $entity->getSubType ())
+			{
+				$htmlGen =& MimeEntityHtmlGenerator::createGenerator (
+					$entity
+					);
+
+				if (is_object ($htmlGen))
+					$htmlGen->generate ();
+				
+				return;
+			}
+		}
+
+		/* if none found, try and display the last entity
+		   as per RFC 2046 section 5.1.4 */
+		$htmlGen =& MimeEntityHtmlGenerator::createGenerator (
+			$entity
+			);
+
+		if (is_object ($htmlGen))
+			$htmlGen->generate ();
+	}
+}
 
 ?>
