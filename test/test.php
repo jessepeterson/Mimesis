@@ -9,12 +9,14 @@ require_once (SIMPLETEST_DIR . 'reporter.php');
 include_once ('cases/sanity.php');
 include_once ('cases/parse.php');
 include_once ('cases/entities.php');
+include_once ('cases/body.php');
 
 $alltests =& new GroupTest ('All tests');
 $alltests->addTestCase (new Sanity);
 // $alltests->addTestCase (new ParseTestCase);
 $alltests->addTestCase (new CompositeEntityTestCase);
 $alltests->addTestCase (new EntityTypesTestCase);
+$alltests->addTestCase (new IntraFileMimeBodyTestCase);
 $alltests->run (new TextReporter ());
 
 ?>
