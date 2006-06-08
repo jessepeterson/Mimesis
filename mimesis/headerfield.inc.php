@@ -6,7 +6,7 @@
  */
 
 /** */
-require_once ('parsetok.php');
+require_once ('mimesis/parsetok.php');
 
 /**
  * Parent class for MIME header fields.
@@ -392,7 +392,7 @@ MimeHeaderField
 	function
 	&_parseMailboxToks (&$toks)
 	{
-		require_once ('mailbox.inc.php');
+		require_once ('mimesis/mailbox.inc.php');
 
 		$mailbox =& new Mailbox;
 

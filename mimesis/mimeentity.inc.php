@@ -6,7 +6,7 @@
  */
 
 /** @see RefArrayIterator */
-require_once ('refarrayiterator.inc.php');
+require_once ('mimesis/refarrayiterator.inc.php');
 
 /**
  * PHP OOP representation of an RFC 2045 and RFC 2046 MIME entity (RFC
