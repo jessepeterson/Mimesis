@@ -12,7 +12,7 @@ require_once ('refarrayiterator.inc.php');
  * PHP OOP representation of an RFC 2045 and RFC 2046 MIME entity (RFC
  * 2045 section 2.4).
  *
- * As an overview, MIME messages are MIME entities with have a header
+ * As an overview, MIME messages are MIME entities which have a header
  * composed of header fields and a body that may included embedded
  * MIME entities making a MIME message possibly heirarchially
  * recursive.  Please refer to the related MIME RFCs beginning with
