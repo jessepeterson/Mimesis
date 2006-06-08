@@ -115,7 +115,7 @@ MimeEntityBuilderLineBuilder
 			// entity body line (end-of-header has been reached)
 
 			// all boundary lines start with '-', test for it
-			if ('-' == $line{0})
+			if (strlen ($line) >= 1 and '-' == $line{0})
 			{
 				// loop through our entity stack to find boundaries
 				for ($i = $this->_curEnt; $i >= 0; $i--)
@@ -409,7 +409,7 @@ MimeEntityBuilder
 	function
 	_assureIdExists ($id)
 	{
-		if (! is_object ($this->_entities[$id]))
+		if ((! isset ($this->_entities[$id])) or (! is_object ($this->_entities[$id])))
 			$this->_entities[$id] =& new MimeEntity;
 	}
 }
@@ -442,7 +442,7 @@ MimeEntityBuilder
 
 		$entity =& $this->_entities[$entityId];
 
-		if (! is_object ($entity->body))
+		if (! isset ($entity->body) or (! is_object ($entity->body)))
 			$entity->body =& new MemoryMimeBody;
 
 		$entity->body->handleRawLineByRef ($line, $pos);

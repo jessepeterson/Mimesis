@@ -46,13 +46,15 @@ filter822tokens ($tokens, $types)
  * Parse and tokenize a header field structured header field body.
  *
  * Analyze, parse, and tokenize the given field body into an RFC 822
- * section 3.1.4 lexical symbols and types sequence.  These include special
- * chars, quoted-strings, domain-literals, comments, and "atoms."
+ * section 3.1.4 "lexical symbols and types" sequence.  These include
+ * special chars, quoted-strings, domain-literals, comments, and
+ * "atoms."
  *
  * - Note: Has no knowledge of folding and unfolding.  Assumes any
  *         unfolding has already been done or doesn't exist.
  * - Note: Specials are taken from argument.  If not specified, use RFC
- *         822.
+ *         822.  Used for eg. MIME specials parsing, which has diff.
+ *         specials characters.
  * - Note: "linear-white-space" tokenization may not be to spec (CRLF?).
  * - Note: Implemented as char-at-a-time parsing.  For PHP this may be
  *         glacially slow!
@@ -131,6 +133,8 @@ tokenize822 ($body, $specials = null)
 			{
 				if ($body{$i} == $end_ch)
 					break;
+
+				if (! isset ($tokens[$token_pos])) $tokens[$token_pos] = array ('string' => null);
 				if ('\\' == $body{$i})
 					$tokens[$token_pos]["string"] .= $body{++$i};
 				else
@@ -165,7 +169,11 @@ tokenize822 ($body, $specials = null)
 				$tokens[$token_pos++]["type"]   = TOKEN_SPECIAL;
 			}
 			else
-				$tokens[$token_pos]["string"] .= $body{$i};
+			{
+				if (! isset ($tokens[$token_pos])) $tokens[$token_pos] = array ('string' => null);
+
+				$tokens[$token_pos]['string'] .= $body{$i};
+			}
 		}
 	}
 

@@ -75,17 +75,21 @@ MimeHeaderField
 		switch (strtolower ($headerFieldName))
 		{
 		case 'content-type':
-			return new ContentTypeHeaderField;
+			$h = new ContentTypeHeaderField;
+			return $h;
 		case 'to':
 		case 'cc':
 		case 'bcc':
 		case 'from':
 		case 'reply-to':
-			return new AddressListHeaderField;
+			$h =& new AddressListHeaderField;
+			return $h;
 		case 'content-disposition':
-			return new ContentDispositionHeaderField;
+			$h =& new ContentDispositionHeaderField;
+			return $h;
 		default:
-			return new UnstructuredMimeHeaderField;
+			$h =& new UnstructuredMimeHeaderField;
+			return $h;
 		}
 	}
 }
@@ -368,7 +372,7 @@ MimeHeaderField
 			}
 			 */
 
-			if (TOKEN_SPECIAL == $tok['type'] and
+			if (isset ($tok['type']) and TOKEN_SPECIAL == $tok['type'] and
 			    ',' == $tok['string'])
 			{
 				$this->_mailboxes[] =& $this->_parseMailboxToks ($mailbox_toks);
@@ -398,7 +402,7 @@ MimeHeaderField
 
 		foreach ($toks as $tok)
 		{
-			if (TOKEN_SPECIAL == $tok['type'] and
+			if (isset ($tok['type']) and TOKEN_SPECIAL == $tok['type'] and
 			    '<' == $tok['string'])
 			{
 				$in_angle_br = true;
@@ -409,13 +413,13 @@ MimeHeaderField
 					$cur_strings = array ();
 				}
 			}
-			elseif (TOKEN_SPECIAL == $tok['type'] and
+			elseif (isset ($tok['type']) and TOKEN_SPECIAL == $tok['type'] and
 			    '@' == $tok['string'])
 			{
 				$mailbox->setLocalPart (implode (null, $cur_strings));
 				$cur_strings = array ();
 			}
-			elseif (TOKEN_SPECIAL == $tok['type'] and
+			elseif (isset ($tok['type']) and TOKEN_SPECIAL == $tok['type'] and
 			    '>' == $tok['string'])
 			{
 				break;
