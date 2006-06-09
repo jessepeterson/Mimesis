@@ -14,7 +14,8 @@ else
 
 $parser =
 	new MimeFileLineParser (
-		new MimeEntityBuilderLineBuilder (new MemoryMimeEntityBuilder),
+		new MimeEntityBuilderLineBuilder (new IntraFileBodyMimeEntityBuilder ($file)),
+//		new MimeEntityBuilderLineBuilder (new MemoryBodyMimeEntityBuilder),
 //		new MimeEntityBuilderLineBuilder (new MimeEntityBuilder),
 		$file
 		);
@@ -38,8 +39,11 @@ for ($iter->rewind (); $iter->valid (); $iter->next ())
  */
 
 test_entity_structure_display (
-	$parser->getMimeEntity ()
+	$entity =& $parser->getMimeEntity ()
 	);
+
+file_put_contents ('myfile.txt', serialize ($entity));
+// var_dump ($entity);
 
 function test_entity_structure_display (&$ent)
 {
@@ -58,6 +62,17 @@ function test_entity_structure_display (&$ent)
 
 	print ($hdr->_type . '/' . $hdr->_subtype);
 	print ("\n");
+	
+	if (isset ($ent->body) and is_object ($ent->body))
+	{
+		$b = $ent->body->getBody ();
+		$end = urlencode (substr ($b, -10));
+		$beg = urlencode (substr ($b, 0, 10));
+		unset ($b);
+		
+		print ('body start=' . $ent->body->_start . '(' . $beg . ') end=' . $ent->body->_endPos . '(' . $end . ") file=" . $ent->body->_fileName . "\n");
+		// var_dump ($ent->body->_start, $ent->body->_endPos, $ent->body->getBody ());
+	}
 
 	for ($i =& $ent->getComponentIterator ();
 	     $i->valid ();

@@ -424,12 +424,12 @@ MimeEntityBuilder
  * @package MIMESIS_BUILD
  */
 class
-MemoryMimeEntityBuilder
+MemoryBodyMimeEntityBuilder
 extends
 MimeEntityBuilder
 {
 	/**
-	 * In-memeory body line handler.
+	 * In-memory body line handler.
 	 *
 	 * @param integer Entity ID
 	 * @param string Line of body text
@@ -449,7 +449,65 @@ MimeEntityBuilder
 	}
 
 	/**
-	 * In-memeory body line handler.
+	 * In-memory body line handler.
+	 *
+	 * @see handleBodyLineByRef
+	 * @param integer
+	 * @param string
+	 * @param integer
+	 */
+	function
+	handleBodyLine ($entityId, $line, $pos = null)
+	{
+		$this->_handleBodyLineByRef ($entityId, $line, $pos);
+	}
+}
+
+/**
+ * Build MIME message and refer to byte positions within file for body
+ * content.
+ *
+ * @package MIMESIS_BUILD
+ */
+class
+IntraFileBodyMimeEntityBuilder
+extends
+MimeEntityBuilder
+{
+	var $_tmpFileName;
+
+	function
+	IntraFileBodyMimeEntityBuilder ($fileName)
+	{
+		$this->_tmpFileName = $fileName;
+		parent::MimeEntityBuilder ();
+	}
+
+	/**
+	 * Intra-file body line handler.
+	 *
+	 * @param integer Entity ID
+	 * @param string Line of body text
+	 * @param integer Optional byte position from source
+	 */
+	function
+	handleBodyLineByRef ($entityId, &$line, $pos = null)
+	{
+		$this->_assureIdExists ($entityId);
+
+		$entity =& $this->_entities[$entityId];
+
+		if (! isset ($entity->body) or (! is_object ($entity->body)))
+		{
+			$entity->body =& new IntraFileMimeBody;
+			$entity->body->_fileName = $this->_tmpFileName;
+		}
+
+		$entity->body->handleRawLineByRef ($line, $pos);
+	}
+
+	/**
+	 * Intra-file body line handler.
 	 *
 	 * @see handleBodyLineByRef
 	 * @param integer
