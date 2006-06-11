@@ -86,8 +86,8 @@ tokenize822 ($body, $specials = null)
 			// loop for end of comment(s)
 			for (++$i; $i < strlen ($body); $i++)
 			{
-				// because of break's, this need be an if,
-				// rather than switch
+				/* because of breaks, this need be an if,
+				 * rather than switch */
 				if (')' == $body{$i})
 				{
 					if (1 == $cmnt_level)
@@ -113,7 +113,12 @@ tokenize822 ($body, $specials = null)
 					$tokens[$token_pos]["string"] .= $body{++$i};
 				 */
 				else
+				{
+					if (! isset ($tokens[$token_pos]))
+						$tokens[$token_pos] = array ('string' => null);
+
 					$tokens[$token_pos]["string"] .= $body{$i};
+				}
 			}
 			break;
 		case '"': // quoted-string

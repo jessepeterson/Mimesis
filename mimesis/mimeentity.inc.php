@@ -3,6 +3,7 @@
 /**
  * @copyright Copyright (C) 2005 Jesse Peterson.  All rights reserved.
  * @author Jesse Peterson <jpeterson275@comcast.net>
+ * @package MIMESIS_ENTITY
  */
 
 /** @see RefArrayIterator */
@@ -57,7 +58,7 @@ MimeEntity
 
 	/**
 	 * Return first case-insensitively matching header field that
-	 * matches the supplied header field name, if it exists.
+	 * matches the supplied header field name.
 	 *
 	 * @param string Header field name
 	 * @return MimeHeaderField
