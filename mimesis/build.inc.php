@@ -165,7 +165,7 @@ MimeEntityBuilderLineBuilder
 				}
 			}
 
-			// standard line - pass to builder for handline body text
+			// standard line - pass to builder for handling body text
 			$this->_builder->handleBodyLineByRef (
 				$this->_entityStack[$this->_curEnt][0],
 				$line,
@@ -242,42 +242,37 @@ MimeEntityBuilderLineBuilder
 	function
 	_parseHeaderField ()
 	{
-		if (! empty ($this->_headerFieldName))
+		if (! empty ($this->_headerFieldName) and
+		    ! empty ($this->_headerFieldBody))
 		{
-			// do da do da $this->_headerField
-			if (! empty ($this->_headerFieldBody))
+			$field =& MimeHeaderField::nameFactory ($this->_headerFieldName);
+
+			$field->setName ($this->_headerFieldName);
+			$field->parseBody ($this->_headerFieldBody);
+
+			if ('content-type' == strtolower ($field->getName ()))
 			{
-				$field =& MimeHeaderField::nameFactory ($this->_headerFieldName);
-
-				$field->setName ($this->_headerFieldName);
-				$field->parseBody ($this->_headerFieldBody);
-
-				if ('content-type' ==
-				    strtolower ($this->_headerFieldName))
+				if ($field->isMultipart ())
 				{
-					if ($field->isMultipart ())
-					{
-						$this->_entityStack[$this->_curEnt][2] =
-							$field->getParam ('boundary');
-					}
-					elseif ($field->isMessage ())
-					{
-						$this->_entityStack[$this->_curEnt][3] = true;
-					}
+					$this->_entityStack[$this->_curEnt][2] =
+						$field->getParam ('boundary');
 				}
-
-				// add our header field to our entity (builder)
-				$this->_builder->handleHeaderField (
-					$this->_entityStack[$this->_curEnt][0],
-					$field
-					);
-
-				$this->_headerFieldBody = null;
-				$this->_headerFieldName = null;
+				elseif ($field->isMessage ())
+				{
+					$this->_entityStack[$this->_curEnt][3] = true;
+				}
 			}
+
+			// add our header field to our entity (builder)
+			$this->_builder->handleHeaderField (
+				$this->_entityStack[$this->_curEnt][0],
+				$field
+				);
+
+			$this->_headerFieldBody = null;
+			$this->_headerFieldName = null;
 		}
 	}
-
 
 	/**
 	 * Return our built MimeEntity object!
