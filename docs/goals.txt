@@ -1,0 +1,11 @@
+Mimesis: Comprehensive PHP MIME.
+
+Goals:
+	- To provide an API and object system that models a natural MIME message
+	- To provide an API to parse MIME messages and represent such parsed messages in the above mentioned model
+	- To provide an API to compose MIME messages and represent such composed messages in the above mentioned model
+	- To strive for high efficiency
+	- To strive for high security
+	- To be guided by accepted programming best practices such as:
+		- Extensive use of patterns
+		- Test driven design
